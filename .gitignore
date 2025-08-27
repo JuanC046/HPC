@@ -1,0 +1,13 @@
+*.out
+# Compiled files
+*.o
+*.so
+*.dll
+*.exe
+*.class
+*.pyc
+*.pyo
+__pycache__/
+*.com
+*.a
+*.lib
