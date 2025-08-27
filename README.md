@@ -1,72 +1,56 @@
-# High-Performance Matrix Multiplication
+# Applying HPC Strategies
 
-This project focuses on implementing and optimizing matrix multiplication algorithms in a High-Performance Computing (HPC) environment. The goal is to demonstrate various performance optimization strategies for matrix operations, which are fundamental to many scientific and engineering applications.
+This project demonstrates the application of High-Performance Computing (HPC) strategies to improve efficiency in matrix multiplication and related computational algorithms. Matrix multiplication serves as an excellent case study for HPC optimization techniques due to its computational intensity and regular memory access patterns.
 
 ## Project Overview
 
-The core of this project is a matrix multiplication implementation that can be optimized using different HPC strategies such as:
+The project explores how various HPC optimization strategies can dramatically improve the performance of matrix operations, which are fundamental to:
+- Scientific simulations
+- Machine learning algorithms
+- Computer graphics
+- Signal processing
+- Computational physics
+
+Starting with a baseline sequential implementation, the project will progressively incorporate advanced HPC techniques to achieve maximum computational efficiency.
+
+## HPC Strategies Implemented
+
+The project demonstrates several key HPC optimization approaches:
+
 - Parallelization
 - Distribute Computing
 
-The baseline is a sequential matrix multiplication algorithm that will serve as a reference for performance comparisons.
-
 ## System Requirements
 
-This project is designed to run on **Linux** systems with:
-- GCC compiler
+This project is specifically designed for **Linux** environments and requires:
+- GCC compiler (version 7.0+)
 - Standard C libraries
+- POSIX threads support
+
 
 ## Compilation
 
-To compile the program, use the following command:
+To compile the baseline sequential implementation:
 
 ```bash
-gcc matrix_mult.c -o matrix_mult.out
+cc matrix_mult.c -o matrix_mult.out 
 ```
 
 ## Execution
 
-Run the program by specifying the matrix size as a command-line argument:
-
+### Sequential Version
 ```bash
 ./matrix_mult.out <matrix_size>
 ```
 
 Examples:
 ```bash
-# Multiply 100x100 matrices
-./matrix_mult.out 100
-
-# Multiply 1000x1000 matrices
+# Sequential multiplication of 1000x1000 matrices
 ./matrix_mult.out 1000
-
-# Multiply 2000x2000 matrices
-./matrix_mult.out 2000
-```
-
-## Performance Analysis
-
-For performance analysis, you can use Linux tools such as:
-- `time` command to measure execution time
-- `perf` for detailed performance metrics
-- `valgrind` for memory usage analysis
-
-Example:
-```bash
-time ./matrix_mult.out 1000
-perf stat ./matrix_mult.out 1000
-```
-
-## Future Enhancements
-
-Future versions of this project will include:
-- POSIX threads
-- OpenMP parallelization
-- Performance comparison across different optimization strategies
 
 ## Contributing
 
-Contributions to improve the performance or add new optimization strategies are welcome.
+Contributions to implement new optimization strategies or extend the project to other algorithms are welcome. Please ensure all contributions maintain compatibility with Linux environments.
 
 ## License
 
