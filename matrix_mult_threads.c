@@ -162,13 +162,18 @@ int main(int argc, char* argv[]) {
     generate_matrix(A, n, 0);
     generate_matrix(B, n, 1000);
     
+    // Start time measurement
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+
     // Perform matrix multiplication: C = A * B
-    // clock_t start_time = clock();
     matrix_multiply(A, B, C, n, num_threads);
-    // clock_t end_time = clock();
+
+    // End time measurement
+    clock_gettime(CLOCK_MONOTONIC, &end);
     
     // Calculate execution time
-    // double execution_time = ((double)(end_time - start_time)) / CLOCKS_PER_SEC;
+    double execution_time = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
     
     // Optional: Display results for small matrices (uncomment if needed)
     // if (n <= 10) {
@@ -182,7 +187,17 @@ int main(int argc, char* argv[]) {
 
     // printf("Matrix multiplication completed successfully.\n");
     // printf("Matrix size: %d x %d\n", n, n);
-    // printf("Execution time: %.6f seconds\n", execution_time);
+    // printf("Number of threads: %d\n", num_threads);
+    // printf("Execution time: %.9f seconds\n", execution_time);
+
+    // Save results to CSV file
+    FILE *csv_file = fopen("results.csv", "a");
+    if (csv_file != NULL) {
+        fprintf(csv_file, "threads,%d,%d,%.9f\n", n, num_threads, execution_time);
+        fclose(csv_file);
+    } else {
+        fprintf(stderr, "Error opening results.csv\n");
+    }
     
     // Free allocated memory
     free_matrix(A, n);
