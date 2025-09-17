@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MATRIX_SIZES=(1000 1500 2000 2500 3000)
+MATRIX_SIZES=(200 400 800 1600 3200)
 NUM_PROCESSES=(4 8 12 16 20)
 NUM_THREADS=(4 8 12 16 20)
 NUM_RUNS=10
@@ -12,6 +12,7 @@ echo "implementation,matrix_size,parallel_units,execution_time" > $RESULTS_FILE
 # Compile programs
 echo "Compilando programas..."
 gcc matrix_mult.c -o matrix_mult.out -lm
+gcc matrix_mult_transpose.c -o matrix_mult_transpose.out -lm
 gcc matrix_mult_threads.c -o matrix_mult_threads.out -lpthread -lm
 gcc matrix_mult_processes.c -o matrix_mult_processes.out -lrt -lm
 
@@ -34,6 +35,14 @@ for ((run=1; run<=$NUM_RUNS; run++)); do
     echo "\n--- Secuencial: ejecución $run/$NUM_RUNS ---"
     for size in "${MATRIX_SIZES[@]}"; do
         run_test matrix_mult.out $size
+    done
+done
+
+echo "Ejecutando pruebas secuenciales por secuencia de tamaños matriz B transpuesta..."
+for ((run=1; run<=$NUM_RUNS; run++)); do
+    echo "\n--- Secuencial: ejecución $run/$NUM_RUNS ---"
+    for size in "${MATRIX_SIZES[@]}"; do
+        run_test matrix_mult_transpose.out $size
     done
 done
 
