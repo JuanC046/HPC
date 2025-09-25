@@ -82,18 +82,20 @@ int main(int argc, char *argv[])
     srand(time(NULL));
 
     // Run simulation and measure time
-    clock_t start = clock();
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
     double pi_estimate = estimate_pi(n);
-    clock_t end = clock();
+    clock_gettime(CLOCK_MONOTONIC, &end);
 
-    double elapsed = (double)(end - start) / CLOCKS_PER_SEC;
+    // Calculate execution time
+    double execution_time = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
 
     // Print results
     printf("Estimated π: %f\n", pi_estimate);
     printf("Actual π:    %f\n", M_PI);
     printf("Error:       %f%%\n", fabs(100.0 * (pi_estimate - M_PI) / M_PI));
     printf("Needles:     %ld\n", n);
-    printf("Time:        %.2f seconds\n", elapsed);
+    printf("Time:        %.9f seconds\n", execution_time);
 
     return EXIT_SUCCESS;
 }

@@ -67,12 +67,23 @@ int main(int argc, char *argv[]) {
     // Seed the random number generator
     srand(time(NULL));
     
+    // Start time measurement
+    struct timespec start, end;
+    clock_gettime(CLOCK_MONOTONIC, &start);
+
     // Estimate PI
     double pi_estimate = estimate_pi(n);
+
+    // End time measurement
+    clock_gettime(CLOCK_MONOTONIC, &end);
+
+    // Calculate execution time
+    double execution_time = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1e9;
     
     printf("Estimated PI: %.10f\n", pi_estimate);
     printf("Actual PI:    %.10f\n", M_PI);
     printf("Difference:   %.10f\n", fabs(pi_estimate - M_PI));
+    printf("Time:         %.9f seconds\n", execution_time);
     
     return 0;
 }
