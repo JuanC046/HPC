@@ -180,6 +180,7 @@ int main(int argc, char *argv[])
     printf("Estimated π: %f\n", pi_estimate);
     printf("Actual π:    %f\n", M_PI);
     printf("Error:       %f%%\n", fabs(100.0 * (pi_estimate - M_PI) / M_PI));
+    printf("Difference:  %.10f\n", fabs(pi_estimate - M_PI));
     printf("Needles:     %ld\n", n);
     printf("Threads:     %d\n", num_threads);
     printf("Time:        %.9f seconds\n", execution_time);

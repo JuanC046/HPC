@@ -227,6 +227,7 @@ int main(int argc, char *argv[]) {
     printf("Number of processes: %d\n", num_processes);
     printf("Estimated PI: %.10f\n", pi_estimate);
     printf("Actual PI:    %.10f\n", M_PI);
+    printf("Error:        %f%%\n", fabs(100.0 * (pi_estimate - M_PI) / M_PI));
     printf("Difference:   %.10f\n", fabs(pi_estimate - M_PI));
     printf("Time:         %.9f seconds\n", execution_time);
     
