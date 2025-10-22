@@ -1,11 +1,11 @@
 /**
- * dartbord_omp_fixed.c
+ * dartbord_omp.c
  *
  * A program to estimate the value of PI using the Monte Carlo Dartboard method.
  * We simulate throwing darts at a square containing a circle and use
  * the ratio of darts landing inside the circle to estimate PI.
  *
- * Fixed OpenMP implementation to avoid race conditions and improve thread safety.
+ * OpenMP implementation for concurrency with threads.
  */
 
 #include <stdio.h>
