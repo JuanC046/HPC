@@ -42,11 +42,7 @@ void display_matrix_1d(int32_t* matrix, int rows, int cols) {
 int main(int argc, char* argv[]) {
     int rank, size;
     int n;                      // Matrix size
-    int32_t *A_full = NULL;     // Only rank 0 loads this
-    int32_t *B = NULL;          // All processes need matrix B
-    int32_t *A_local = NULL;
-    int32_t *C_local = NULL;
-    int32_t *C_full = NULL;
+    int32_t *A_local, *B, *C_local, *C_full = NULL;
     double start_time, end_time, execution_time;
 
     // Initialize MPI environment
@@ -68,35 +64,15 @@ int main(int argc, char* argv[]) {
 
     char* filename = argv[1];
 
-    // Only rank 0 loads matrices from file
-    if (rank == 0) {
-        FILE* f = fopen(filename, "rb");
-        if (!f) {
-            fprintf(stderr, "Error opening file %s\n", filename);
-            MPI_Abort(MPI_COMM_WORLD, 1);
-        }
-
-        // Load size n
-        fread(&n, sizeof(int), 1, f);
-
-        A_full = allocate_matrix_1d(n, n);
-        B = allocate_matrix_1d(n, n);
-
-        if (!A_full || !B) {
-            fprintf(stderr, "Error: memory allocation failed\n");
-            MPI_Abort(MPI_COMM_WORLD, 1);
-        }
-
-        // Read A and B
-        fread(A_full, sizeof(int32_t), n*n, f);
-        fread(B, sizeof(int32_t), n*n, f);
-
-        fclose(f);
-        printf("Matrices loaded successfully from %s\n", filename);
+    // All processes open the binary file
+    FILE *f = fopen(filename, "rb");
+    if (!f) {
+        fprintf(stderr, "Process %d: Error opening file %s\n", rank, filename);
+        MPI_Abort(MPI_COMM_WORLD, 1);
     }
 
-    // Broadcast matrix size n to all processes
-    MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    // Read matrix size n from file
+    fread(&n, sizeof(int), 1, f);
 
     if (n % size != 0) {
         if (rank == 0)
@@ -108,30 +84,28 @@ int main(int argc, char* argv[]) {
     int local_rows = n / size;
 
     // All processes allocate B, A_local, C_local
-    if (rank != 0)
-        B = allocate_matrix_1d(n, n);
-
     A_local = allocate_matrix_1d(local_rows, n);
+    B = allocate_matrix_1d(n, n);
     C_local = allocate_matrix_1d(local_rows, n);
 
     if (!A_local || !B || !C_local) {
-        fprintf(stderr, "Error: memoria insuficiente en proceso %d\n", rank);
+        fprintf(stderr, "Error: Memory allocation failed in process %d\n", rank);
         MPI_Abort(MPI_COMM_WORLD, 1);
     }
 
-    // Broadcast matrix B to all processes
-    MPI_Bcast(B, n*n, MPI_INT32_T, 0, MPI_COMM_WORLD);
+    // read local block of A
+    long offset_A = sizeof(int) + (long)rank * (local_rows * n * sizeof(int32_t));
+    fseek(f, offset_A, SEEK_SET);
+    fread(A_local, sizeof(int32_t), local_rows*n, f);
 
-    // Scatter rows of A to all processes
-    MPI_Scatter(A_full, local_rows*n, MPI_INT32_T,
-                A_local, local_rows*n, MPI_INT32_T,
-                0, MPI_COMM_WORLD);
+    // read full matrix B
+    long offset_B = sizeof(int) + (long)n * n * sizeof(int32_t);
+    fseek(f, offset_B, SEEK_SET);
+    fread(B, sizeof(int32_t), n*n, f);
 
-    // Prepare rank 0 for gathering C
-    if (rank == 0)
-        C_full = allocate_matrix_1d(n, n);
+    fclose(f);
 
-     // Synchronize all processes before starting computation
+    // Synchronize all processes before starting computation
     MPI_Barrier(MPI_COMM_WORLD);
 
     // Start global time measurement using MPI timer
@@ -149,6 +123,9 @@ int main(int argc, char* argv[]) {
     // Calculate execution time
     execution_time = end_time - start_time;
 
+    if (rank == 0)
+        C_full = allocate_matrix_1d(n, n);
+
     // Gather results from all processes back to rank 0
     MPI_Gather(C_local, local_rows*n, MPI_INT32_T,
                C_full, local_rows*n, MPI_INT32_T,
@@ -158,10 +135,6 @@ int main(int argc, char* argv[]) {
     if (rank == 0) {
         // Optional: Display results for small matrices (uncomment if needed)
         if (n <= 10) {
-            printf("Matrix A:\n");
-            display_matrix_1d(A_full, n, n);
-            printf("Matrix B:\n");
-            display_matrix_1d(B, n, n);
             printf("Matrix C (A * B):\n");
             display_matrix_1d(C_full, n, n);
         }
@@ -182,7 +155,6 @@ int main(int argc, char* argv[]) {
 
     // Free full matrices
     if (rank == 0) {
-        free(A_full);
         free(C_full);
     }
 
